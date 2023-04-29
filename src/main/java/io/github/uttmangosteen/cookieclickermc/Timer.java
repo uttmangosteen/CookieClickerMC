@@ -14,7 +14,7 @@ public class Timer {
                 if(Global.saveData.containsKey(uuid)){
                     playerData.stock = playerData.stock.add(playerData.CPS);
                 }
-                if(player.getOpenInventory().getTitle().contains("§1§a§l")){
+                if(player.getOpenInventory().getTitle().contains("§c§c§m§c")){
                     GUI.createInventory(player);
                 }
             }

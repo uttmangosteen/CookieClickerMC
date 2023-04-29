@@ -12,15 +12,25 @@ import java.math.BigInteger;
 import java.util.Arrays;
 
 public class Event implements Listener {public Event(Plugin plugin){Bukkit.getPluginManager().registerEvents(this, plugin);}
+
+    private static final BigInteger[] buildingOriginalCPS = {BigInteger.valueOf(1), BigInteger.valueOf(10), BigInteger.valueOf(80), BigInteger.valueOf(470), BigInteger.valueOf(2600), BigInteger.valueOf(14000), BigInteger.valueOf(78000), BigInteger.valueOf(440000), BigInteger.valueOf(2600000), BigInteger.valueOf(16000000), BigInteger.valueOf(100000000), BigInteger.valueOf(650000000), BigInteger.valueOf(4300000000L), BigInteger.valueOf(29000000000L), BigInteger.valueOf(21000000000000L), BigInteger.valueOf(150000000000000L), BigInteger.valueOf(1100000000000000000L)};
+    private static final int[] powerCPC = {10, 20, 40, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80};
+    private static final long[] powerThousandFingers = {0, 0, 0, 0, 1, 5, 50, 1000, 20000, 400000, 8000000, 160000000, 3200000000L, 64000000000L, 1280000000000L};
+
     @EventHandler
-    public void onClick(InventoryClickEvent e) {
-        ItemStack clickedItem = e.getCurrentItem();
-        if (clickedItem == null || !e.getView().getTitle().contains("§1§a§l")) return;
-        e.setCancelled(true);
-        Player player = (Player) e.getWhoClicked();
+    public void onClick(InventoryClickEvent event) {
+        ItemStack clickedItem = event.getCurrentItem();
+        if (clickedItem == null || !event.getView().getTitle().contains("§c§c§m§c")) return;
+        event.setCancelled(true);
+        Player player = (Player) event.getWhoClicked();
         PlayerData playerData = Global.saveData.get(player.getUniqueId());
         int originalItemID;
         switch (clickedItem.getItemMeta().getDisplayName()) {
+
+            case "§e§lクリックで作る":
+                playerData.stock = playerData.stock.add(playerData.CPC);
+                GUI.createInventory(player);
+                return;
             case "§e§lLOAD":
                 player.closeInventory();
                 player.sendMessage("§f§l[§d§lCo§f§lok§a§lie§e§lClicker§f§l]§b§lロード");
@@ -29,21 +39,6 @@ public class Event implements Listener {public Event(Plugin plugin){Bukkit.getPl
             case "§e§lSAVE":
                 player.closeInventory();
                 player.sendMessage("§f§l[§d§lCo§f§lok§a§lie§e§lClicker§f§l]§a§lセーブ");
-                return;
-
-            case "§e§lクリックで作る":
-                playerData.stock = playerData.stock.add(playerData.CPC);
-                GUI.createInventory(player);
-                return;
-            case "§e§lカーソルアップグレード":
-                if (playerData.stock.compareTo(Global.upGradeCursorPrice[playerData.powerBuilding[0]]) >= 0) {
-                    playerData.stock = playerData.stock.subtract(Global.upGradeCursorPrice[playerData.powerBuilding[0]]);
-                    playerData.powerBuilding[0]++;
-                    playerData.CPSBuilding[0] = playerData.CPSBuilding[0].multiply(BigInteger.TWO);
-                    playerData.CPS = Arrays.stream(playerData.CPSBuilding).reduce(BigInteger.ZERO, BigInteger::add);
-                    playerData.CPC = playerData.CPSBuilding[0].divide(BigInteger.valueOf(playerData.amountBuilding[0])).multiply(BigInteger.TEN);
-                    GUI.createInventory(player);
-                }
                 return;
 
             case "§e§lカーソル": originalItemID = 0; break;
@@ -64,6 +59,7 @@ public class Event implements Listener {public Event(Plugin plugin){Bukkit.getPl
             case "§e§l自己無限生成エンジン": originalItemID = 15; break;
             case "§e§lJavaコンソール": originalItemID = 16; break;
 
+            case "§e§lカーソルアップグレード": originalItemID = 100; break;
             case "§e§lグランマアップグレード": originalItemID = 101; break;
             case "§e§l農場アップグレード": originalItemID = 102; break;
             case "§e§l採掘場アップグレード": originalItemID = 103; break;
@@ -83,24 +79,29 @@ public class Event implements Listener {public Event(Plugin plugin){Bukkit.getPl
 
             default: return;
         }
-        if (originalItemID <= 16) {
-            if (playerData.stock.compareTo(playerData.priceBuilding[originalItemID]) >= 0) {
-                playerData.stock = playerData.stock.subtract(playerData.priceBuilding[originalItemID]);
-                playerData.amountBuilding[originalItemID]++;
-                playerData.CPSBuilding[originalItemID] = Global.buildingStandardCPS[originalItemID].multiply(BigInteger.valueOf(playerData.amountBuilding[originalItemID])).multiply(BigInteger.TWO.pow(playerData.powerBuilding[originalItemID]));
-                playerData.priceBuilding[originalItemID] = playerData.priceBuilding[originalItemID].multiply(BigInteger.valueOf(11)).divide(BigInteger.TEN);
-                playerData.CPS = Arrays.stream(playerData.CPSBuilding).reduce(BigInteger.ZERO, BigInteger::add);
-                GUI.createInventory(player);
-            }
+        if (originalItemID < 100) {
+            //施設購入時の処理
+            if (playerData.stock.compareTo(playerData.buildingPrice[originalItemID]) < 0) {return;}
+            playerData.stock = playerData.stock.subtract(playerData.buildingPrice[originalItemID]);
+            playerData.buildingAmount[originalItemID]++;
+            playerData.buildingCPS[originalItemID] = buildingOriginalCPS[originalItemID].multiply(BigInteger.valueOf(playerData.buildingAmount[originalItemID])).multiply(BigInteger.TWO.pow(playerData.upGradeAmount[originalItemID]));
+            playerData.buildingPrice[originalItemID] = playerData.buildingPrice[originalItemID].multiply(BigInteger.valueOf(11)).divide(BigInteger.TEN);
         } else {
+            //アップグレード購入時の処理
             originalItemID = originalItemID - 100;
-            if (playerData.stock.compareTo(Global.buildingStandardPrice[originalItemID].multiply(Global.upGradeStandardPrice[playerData.powerBuilding[originalItemID]])) >= 0) {
-                playerData.stock = playerData.stock.subtract(Global.buildingStandardPrice[originalItemID].multiply(Global.upGradeStandardPrice[playerData.powerBuilding[originalItemID]]));
-                playerData.powerBuilding[originalItemID]++;
-                playerData.CPSBuilding[originalItemID] = playerData.CPSBuilding[originalItemID].multiply(BigInteger.TWO);
-                playerData.CPS = Arrays.stream(playerData.CPSBuilding).reduce(BigInteger.ZERO, BigInteger::add);
-                GUI.createInventory(player);
+            if(originalItemID == 0){
+                if(playerData.stock.compareTo(Global.upGradeCursorPrice[playerData.upGradeAmount[0]]) < 0){return;}
+                playerData.stock = playerData.stock.subtract(Global.upGradeCursorPrice[playerData.upGradeAmount[0]]);
+            } else {
+                if (playerData.stock.compareTo(Global.buildingOriginalPrice[originalItemID].multiply(Global.upGradeOriginalPrice[playerData.upGradeAmount[originalItemID]])) < 0) {return;}
+                playerData.stock = playerData.stock.subtract(Global.buildingOriginalPrice[originalItemID].multiply(Global.upGradeOriginalPrice[playerData.upGradeAmount[originalItemID]]));
+                playerData.buildingCPS[originalItemID] = playerData.buildingCPS[originalItemID].multiply(BigInteger.TWO);
             }
+            playerData.upGradeAmount[originalItemID]++;
         }
+        playerData.CPC = BigInteger.valueOf(powerCPC[playerData.upGradeAmount[0]]).add(BigInteger.valueOf(Arrays.stream(playerData.buildingAmount).sum() - playerData.buildingAmount[0]).multiply(BigInteger.valueOf(powerThousandFingers[playerData.upGradeAmount[0]])));
+        playerData.buildingCPS[0] = playerData.CPC.multiply(BigInteger.valueOf(playerData.buildingAmount[0])).divide(BigInteger.TEN);
+        playerData.CPS = Arrays.stream(playerData.buildingCPS).reduce(BigInteger.ZERO, BigInteger::add);
+        GUI.createInventory(player);
     }
 }
