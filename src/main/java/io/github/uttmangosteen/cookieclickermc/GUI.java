@@ -27,9 +27,7 @@ public class GUI {
         } else if (digitAmount <= 72) {
             viewString.append(bigNumber, 0, (digitAmount - 1) % 4 + 1).append(digitName[(digitAmount - 1) / 4]);
             int small4Digit = Integer.parseInt(bigNumber.substring((digitAmount - 1) % 4 + 1, (digitAmount - 1) % 4 + 5));
-            if (small4Digit != 0) {
-                viewString.append(small4Digit).append(digitName[(digitAmount - 1) / 4 - 1]);
-            }
+            if (small4Digit != 0) viewString.append(small4Digit).append(digitName[(digitAmount - 1) / 4 - 1]);
             return viewString.toString();
         } else {
             return viewString.append(bigNumber, 0, 5).insert(1, ".").append("E+").append(digitAmount - 1).toString();
@@ -42,7 +40,7 @@ public class GUI {
         meta.setCustomModelData(customModelData);
         meta.setDisplayName(displayName);
         meta.addItemFlags(ItemFlag.values());
-        if (lore != null) {meta.setLore(lore);}
+        if (lore != null) meta.setLore(lore);
         item.setItemMeta(meta);
         return item;
     }
@@ -317,11 +315,9 @@ public class GUI {
         Inventory inv = Bukkit.createInventory(null, 54, "§c§c§m§c§a§l現在の在庫 §2§l" + bigIntegerFormat(playerData.stock) + "クッキー");
 
         TreeMap<BigInteger, ItemStack> upGrade = new TreeMap<>();
-        if (playerData.upGradeAmount[0] != 14 && playerData.buildingAmount[0] >= unLockUpGradeCursorPrice[playerData.upGradeAmount[0]]){
-            upGrade.put(Global.upGradeCursorPrice[playerData.upGradeAmount[0]], itemUpGrade[0][playerData.upGradeAmount[0]]);
-        }
+        if (playerData.upGradeAmount[0] != 14 && playerData.buildingAmount[0] >= unLockUpGradeCursorPrice[playerData.upGradeAmount[0]]) upGrade.put(Global.upGradeCursorPrice[playerData.upGradeAmount[0]], itemUpGrade[0][playerData.upGradeAmount[0]]);
         for (int i = 1; i <= 16; i++) {
-            if (playerData.upGradeAmount[i] == 14 || playerData.buildingAmount[i] < unLockUpGradePrice[playerData.upGradeAmount[i]]) {continue;}
+            if (playerData.upGradeAmount[i] == 14 || playerData.buildingAmount[i] < unLockUpGradePrice[playerData.upGradeAmount[i]]) continue;
             upGrade.put(Global.buildingOriginalPrice[i].multiply(Global.upGradeOriginalPrice[playerData.upGradeAmount[i]]), itemUpGrade[i][playerData.upGradeAmount[i]]);
         }
         ItemStack[] containUpGrade = upGrade.values().toArray(new ItemStack[17]);

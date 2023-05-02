@@ -1,10 +1,12 @@
 package io.github.uttmangosteen.cookieclickermc;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
@@ -16,9 +18,8 @@ public class Event implements Listener {public Event(Plugin plugin){Bukkit.getPl
     private static final BigInteger[] buildingOriginalCPS = {BigInteger.valueOf(1), BigInteger.valueOf(10), BigInteger.valueOf(80), BigInteger.valueOf(470), BigInteger.valueOf(2600), BigInteger.valueOf(14000), BigInteger.valueOf(78000), BigInteger.valueOf(440000), BigInteger.valueOf(2600000), BigInteger.valueOf(16000000), BigInteger.valueOf(100000000), BigInteger.valueOf(650000000), BigInteger.valueOf(4300000000L), BigInteger.valueOf(29000000000L), BigInteger.valueOf(21000000000000L), BigInteger.valueOf(150000000000000L), BigInteger.valueOf(1100000000000000000L)};
     private static final int[] powerCPC = {10, 20, 40, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80};
     private static final long[] powerThousandFingers = {0, 0, 0, 0, 1, 5, 50, 1000, 20000, 400000, 8000000, 160000000, 3200000000L, 64000000000L, 1280000000000L};
-
     @EventHandler
-    public void onClick(InventoryClickEvent event) {
+    public void inventoryClickEvent(InventoryClickEvent event) {
         ItemStack clickedItem = event.getCurrentItem();
         if (clickedItem == null || !event.getView().getTitle().contains("§c§c§m§c")) return;
         event.setCancelled(true);
@@ -81,7 +82,7 @@ public class Event implements Listener {public Event(Plugin plugin){Bukkit.getPl
         }
         if (originalItemID < 100) {
             //施設購入時の処理
-            if (playerData.stock.compareTo(playerData.buildingPrice[originalItemID]) < 0) {return;}
+            if (playerData.stock.compareTo(playerData.buildingPrice[originalItemID]) < 0) return;
             playerData.stock = playerData.stock.subtract(playerData.buildingPrice[originalItemID]);
             playerData.buildingAmount[originalItemID]++;
             playerData.buildingCPS[originalItemID] = buildingOriginalCPS[originalItemID].multiply(BigInteger.valueOf(playerData.buildingAmount[originalItemID])).multiply(BigInteger.TWO.pow(playerData.upGradeAmount[originalItemID]));
@@ -89,11 +90,11 @@ public class Event implements Listener {public Event(Plugin plugin){Bukkit.getPl
         } else {
             //アップグレード購入時の処理
             originalItemID = originalItemID - 100;
-            if(originalItemID == 0){
-                if(playerData.stock.compareTo(Global.upGradeCursorPrice[playerData.upGradeAmount[0]]) < 0){return;}
+            if (originalItemID == 0) {
+                if(playerData.stock.compareTo(Global.upGradeCursorPrice[playerData.upGradeAmount[0]]) < 0) return;
                 playerData.stock = playerData.stock.subtract(Global.upGradeCursorPrice[playerData.upGradeAmount[0]]);
             } else {
-                if (playerData.stock.compareTo(Global.buildingOriginalPrice[originalItemID].multiply(Global.upGradeOriginalPrice[playerData.upGradeAmount[originalItemID]])) < 0) {return;}
+                if (playerData.stock.compareTo(Global.buildingOriginalPrice[originalItemID].multiply(Global.upGradeOriginalPrice[playerData.upGradeAmount[originalItemID]])) < 0) return;
                 playerData.stock = playerData.stock.subtract(Global.buildingOriginalPrice[originalItemID].multiply(Global.upGradeOriginalPrice[playerData.upGradeAmount[originalItemID]]));
                 playerData.buildingCPS[originalItemID] = playerData.buildingCPS[originalItemID].multiply(BigInteger.TWO);
             }
