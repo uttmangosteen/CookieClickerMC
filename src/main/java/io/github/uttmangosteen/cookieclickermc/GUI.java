@@ -4,46 +4,18 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.math.BigInteger;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.UUID;
 
+import static io.github.uttmangosteen.cookieclickermc.Global.*;
+import static io.github.uttmangosteen.cookieclickermc.Utils.bigIntegerFormat;
+import static io.github.uttmangosteen.cookieclickermc.Utils.createItem;
+
 public class GUI {
-
-    private static final String[] digitName = {"", "万", "億", "兆", "京", "垓", "秭", "穰", "溝", "澗", "正", "載", "極", "恒河沙", "阿僧祇", "那由他", "不可思議", "無量大数"};
-    private static String bigIntegerFormat(BigInteger number) {
-        StringBuilder viewString = new StringBuilder();
-        String bigNumber = number.toString();
-        int digitAmount = bigNumber.length() - 1;
-        if (digitAmount == 0) {
-            return viewString.append("0.").append(bigNumber).toString();
-        } else if (digitAmount <= 4) {
-            return viewString.append(bigNumber, 0, digitAmount + 1).insert(digitAmount, ".").toString();
-        } else if (digitAmount <= 72) {
-            viewString.append(bigNumber, 0, (digitAmount - 1) % 4 + 1).append(digitName[(digitAmount - 1) / 4]);
-            int small4Digit = Integer.parseInt(bigNumber.substring((digitAmount - 1) % 4 + 1, (digitAmount - 1) % 4 + 5));
-            if (small4Digit != 0) viewString.append(small4Digit).append(digitName[(digitAmount - 1) / 4 - 1]);
-            return viewString.toString();
-        } else {
-            return viewString.append(bigNumber, 0, 5).insert(1, ".").append("E+").append(digitAmount - 1).toString();
-        }
-    }
-
-    private static ItemStack createItem(Material material, int customModelData, String displayName, List<String> lore){
-        ItemStack item = new ItemStack(material);
-        ItemMeta meta = item.getItemMeta();
-        meta.setCustomModelData(customModelData);
-        meta.setDisplayName(displayName);
-        meta.addItemFlags(ItemFlag.values());
-        if (lore != null) meta.setLore(lore);
-        item.setItemMeta(meta);
-        return item;
-    }
 
     private static final ItemStack itemSpace = createItem(Material.GREEN_STAINED_GLASS_PANE, 0, " ", null);
     private static final ItemStack itemSeparate = createItem(Material.LIME_STAINED_GLASS_PANE, 0, " ", null);
@@ -306,19 +278,16 @@ public class GUI {
             createItem(Material.COMMAND_BLOCK, 0, "§e§lJavaコンソールアップグレード", List.of("§a§l35阿僧祇5000恒河沙クッキー", "§7§lJavaコンソールが§f§l2倍§7§l効率的になる", "§7§o「PHP捕獲用バット」"))
     }};
 
-    public static final int[] unLockUpGradePrice = {1, 5, 25, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550};
-    public static final int[] unLockUpGradeCursorPrice = {1, 1, 10, 25, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500};
-
     public static void createInventory(Player player) {
         UUID uuid = player.getUniqueId();
-        PlayerData playerData = Global.saveData.get(uuid);
+        PlayerData playerData = saveData.get(uuid);
         Inventory inv = Bukkit.createInventory(null, 54, "§c§c§m§c§a§l現在の在庫 §2§l" + bigIntegerFormat(playerData.stock) + "クッキー");
 
         TreeMap<BigInteger, ItemStack> upGrade = new TreeMap<>();
-        if (playerData.upGradeAmount[0] != 14 && playerData.buildingAmount[0] >= unLockUpGradeCursorPrice[playerData.upGradeAmount[0]]) upGrade.put(Global.upGradeCursorPrice[playerData.upGradeAmount[0]], itemUpGrade[0][playerData.upGradeAmount[0]]);
+        if (playerData.upGradeAmount[0] != 14 && playerData.buildingAmount[0] >= unLockUpGradeCursorPrice[playerData.upGradeAmount[0]]) upGrade.put(upGradeCursorPrice[playerData.upGradeAmount[0]], itemUpGrade[0][playerData.upGradeAmount[0]]);
         for (int i = 1; i <= 16; i++) {
             if (playerData.upGradeAmount[i] == 14 || playerData.buildingAmount[i] < unLockUpGradePrice[playerData.upGradeAmount[i]]) continue;
-            upGrade.put(Global.buildingOriginalPrice[i].multiply(Global.upGradeOriginalPrice[playerData.upGradeAmount[i]]), itemUpGrade[i][playerData.upGradeAmount[i]]);
+            upGrade.put(buildingOriginalPrice[i].multiply(upGradeOriginalPrice[playerData.upGradeAmount[i]]), itemUpGrade[i][playerData.upGradeAmount[i]]);
         }
         ItemStack[] containUpGrade = upGrade.values().toArray(new ItemStack[17]);
 
@@ -342,7 +311,7 @@ public class GUI {
             playerData.buildingAmount[15] == 0 ? itemSpace : createItem(Material.COMMAND_BLOCK, 0, "§e§lJavaコンソール", List.of("§a§l" + bigIntegerFormat(playerData.buildingPrice[16]) + "クッキー", "§f§l" + playerData.buildingAmount[16] + "§7§lカーソルが毎秒§f§l" + bigIntegerFormat(playerData.buildingCPS[16]) + "§7§lクッキー生産", "§7§o「このゲームを記述していることに他ならない" , "§7§oコードからクッキーを生み出します」")),
             createItem(Material.CHEST, 0, "§e§l現在の生産数", List.of("§f§l" + bigIntegerFormat(playerData.CPS) + "§7§lクッキー／秒")),
             itemSeparate, itemSeparate, itemSeparate, itemSeparate, itemSeparate, itemSeparate, itemSeparate, itemSeparate, itemSeparate, itemSpace, itemLoad, itemSpace, itemSeparate,
-            createItem(Material.matchMaterial(Global.config.getString("clickItem.itemId", "COOKIE")), Global.config.getInt("clickItem.customModelData", 0), "§e§lクリックで作る", List.of("§f§l" + bigIntegerFormat(playerData.CPC) + "§7§lクッキー／クリック")),
+            createItem(Material.matchMaterial(config.getString("clickItem.itemId", "COOKIE")), config.getInt("clickItem.customModelData", 0), "§e§lクリックで作る", List.of("§f§l" + bigIntegerFormat(playerData.CPC) + "§7§lクッキー／クリック")),
             itemSeparate, itemSpace, itemSave, itemSpace, itemSeparate, itemSeparate, itemSeparate, itemSeparate, itemSeparate, itemSeparate, itemSeparate, itemSeparate, itemSeparate,
             containUpGrade[8] == null ? itemSpace : containUpGrade[8],
             containUpGrade[7] == null ? itemSpace : containUpGrade[7],

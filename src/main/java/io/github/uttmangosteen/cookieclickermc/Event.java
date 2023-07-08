@@ -1,19 +1,35 @@
 package io.github.uttmangosteen.cookieclickermc;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.plugin.Plugin;
 
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.UUID;
+
+import static io.github.uttmangosteen.cookieclickermc.Global.*;
 
 public class Event implements Listener {public Event(Plugin plugin){Bukkit.getPluginManager().registerEvents(this, plugin);}
+
+    PersistentDataContainer cCData;
+    @EventHandler
+    public void onClick(PlayerInteractEvent event) {
+        ItemStack useItem = event.getItem();
+        if (useItem == null) return;
+        PersistentDataContainer nbtData = useItem.getItemMeta().getPersistentDataContainer();
+        if (!nbtData.has(namespacedKey)) return;
+        Player player = event.getPlayer();
+        UUID uuid = player.getUniqueId();
+
+    }
 
     private static final BigInteger[] buildingOriginalCPS = {BigInteger.valueOf(1), BigInteger.valueOf(10), BigInteger.valueOf(80), BigInteger.valueOf(470), BigInteger.valueOf(2600), BigInteger.valueOf(14000), BigInteger.valueOf(78000), BigInteger.valueOf(440000), BigInteger.valueOf(2600000), BigInteger.valueOf(16000000), BigInteger.valueOf(100000000), BigInteger.valueOf(650000000), BigInteger.valueOf(4300000000L), BigInteger.valueOf(29000000000L), BigInteger.valueOf(21000000000000L), BigInteger.valueOf(150000000000000L), BigInteger.valueOf(1100000000000000000L)};
     private static final int[] powerCPC = {10, 20, 40, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80};
@@ -24,7 +40,7 @@ public class Event implements Listener {public Event(Plugin plugin){Bukkit.getPl
         if (clickedItem == null || !event.getView().getTitle().contains("§c§c§m§c")) return;
         event.setCancelled(true);
         Player player = (Player) event.getWhoClicked();
-        PlayerData playerData = Global.saveData.get(player.getUniqueId());
+        PlayerData playerData = saveData.get(player.getUniqueId());
         int originalItemID;
         switch (clickedItem.getItemMeta().getDisplayName()) {
 
@@ -91,11 +107,11 @@ public class Event implements Listener {public Event(Plugin plugin){Bukkit.getPl
             //アップグレード購入時の処理
             originalItemID = originalItemID - 100;
             if (originalItemID == 0) {
-                if(playerData.stock.compareTo(Global.upGradeCursorPrice[playerData.upGradeAmount[0]]) < 0) return;
-                playerData.stock = playerData.stock.subtract(Global.upGradeCursorPrice[playerData.upGradeAmount[0]]);
+                if(playerData.stock.compareTo(upGradeCursorPrice[playerData.upGradeAmount[0]]) < 0) return;
+                playerData.stock = playerData.stock.subtract(upGradeCursorPrice[playerData.upGradeAmount[0]]);
             } else {
-                if (playerData.stock.compareTo(Global.buildingOriginalPrice[originalItemID].multiply(Global.upGradeOriginalPrice[playerData.upGradeAmount[originalItemID]])) < 0) return;
-                playerData.stock = playerData.stock.subtract(Global.buildingOriginalPrice[originalItemID].multiply(Global.upGradeOriginalPrice[playerData.upGradeAmount[originalItemID]]));
+                if (playerData.stock.compareTo(buildingOriginalPrice[originalItemID].multiply(upGradeOriginalPrice[playerData.upGradeAmount[originalItemID]])) < 0) return;
+                playerData.stock = playerData.stock.subtract(buildingOriginalPrice[originalItemID].multiply(upGradeOriginalPrice[playerData.upGradeAmount[originalItemID]]));
                 playerData.buildingCPS[originalItemID] = playerData.buildingCPS[originalItemID].multiply(BigInteger.TWO);
             }
             playerData.upGradeAmount[originalItemID]++;
