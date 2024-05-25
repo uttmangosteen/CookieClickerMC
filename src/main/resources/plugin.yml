@@ -1,12 +1,13 @@
 name: CookieClickerMC
 version: '${version}'
 main: io.github.uttmangosteen.cookieclickermc.Main
-api-version: 1.19
+api-version: 1.20
 prefix: CookieClickerMC
 authors: [ Underthetree ]
 description: インフレ系放置クッキー製造クリッカーゲームを追加するMinecraft plugin
 
 commands:
   cc:
-    description:
-    usage: /cc help でコマンドを確認
+    cookieClicker:
+      description: "cc"
+      usage: /cc help でコマンドを確認

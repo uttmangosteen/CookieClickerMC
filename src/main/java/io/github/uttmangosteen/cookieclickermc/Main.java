@@ -2,6 +2,8 @@ package io.github.uttmangosteen.cookieclickermc;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.Objects;
+
 public final class Main extends JavaPlugin {
     public static JavaPlugin config, plugin;
     @Override
@@ -10,7 +12,7 @@ public final class Main extends JavaPlugin {
         saveDefaultConfig();
         plugin = this;
         Timer.perSecond();
-        getCommand("cc").setExecutor(new Command());
+        Objects.requireNonNull(getCommand("cc")).setExecutor(new Command());
         new Event(this);
     }
     @Override
