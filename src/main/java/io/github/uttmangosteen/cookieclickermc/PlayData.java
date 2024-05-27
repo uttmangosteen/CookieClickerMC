@@ -8,7 +8,7 @@ public class PlayData {
     public BigInteger stock, CPS, CPC;
     public BigInteger[] buildingPrice, buildingCPS;
     public int[] buildingAmount, upGradeAmount;
-    public PlayData(BigInteger stock, BigInteger CPS, BigInteger CPC, BigInteger[] buildingPrice, BigInteger[] buildingCPS, int[] buildingAmount, int[] upGradeAmount) {
+    public PlayData(BigInteger stock, int[] buildingAmount, int[] upGradeAmount, BigInteger CPS, BigInteger CPC, BigInteger[] buildingPrice, BigInteger[] buildingCPS) {
         this.stock = stock;
         this.CPS = CPS;
         this.CPC = CPC;

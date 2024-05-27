@@ -46,20 +46,25 @@ public class Utils {
         return playData.stock.toString() + "|" + Arrays.toString(playData.buildingAmount) + "|" + Arrays.toString(playData.upGradeAmount);
     }
 
-//    public static PlayData pDCDataToPlayData(String PDCdata){
-//        String[] playData = PDCdata.split("\\|");
-//
-//        BigInteger stock = new BigInteger(playData[0]);
-//        BigInteger CPS = ;
-//        BigInteger CPC = ;
-//        BigInteger[] buildingPrice = new BigInteger[16];
-//
-//        BigInteger[] buildingCPS =
-//        int[] buildingAmount =
-//        int[] upGradeAmount =
-//
-//        return new PlayData(stock, CPS, CPC, buildingPrice, buildingCPS, buildingAmount, upGradeAmount);
-//    }
+    public static PlayData pDCDataToPlayData(String PDCdata){
+        String[] playData = PDCdata.split("\\|");
+
+        String[] stringBuildingAmount = playData[1].replace('[', ' ').replace(']', ' ').split(",");
+        String[] stringUpGradeAmount = playData[2].replace('[', ' ').replace(']', ' ').split(",");
+
+        BigInteger stock = new BigInteger(playData[0]);
+        int[] buildingAmount = new int[16];
+        int[] upGradeAmount = new int[16];
+        for (int i = 0; i < 16; i++) {
+            buildingAmount[i] = Integer.parseInt(stringBuildingAmount[i]);
+            upGradeAmount[i] = Integer.parseInt(stringUpGradeAmount[i]);
+        }
+        BigInteger CPS;
+        BigInteger CPC;
+        BigInteger[] buildingPrice = new BigInteger[16];
+        BigInteger[] buildingCPS = new BigInteger[16];
+        return new PlayData(stock, buildingAmount, upGradeAmount, CPS, CPC, buildingPrice, buildingCPS);
+    }
 
 
 }
