@@ -1,7 +1,6 @@
 package io.github.uttmangosteen.cookieclickermc;
 
 import org.bukkit.Bukkit;
-import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -40,12 +39,12 @@ public class Event implements Listener {public Event(Plugin plugin){Bukkit.getPl
         if (clickedItem == null || !event.getView().getTitle().contains("§c§c§m§c")) return;
         event.setCancelled(true);
         Player player = (Player) event.getWhoClicked();
-        PlayerData playerData = saveData.get(player.getUniqueId());
+        PlayData playData = Global.playData.get(player.getUniqueId());
         int originalItemID;
         switch (clickedItem.getItemMeta().getDisplayName()) {
 
             case "§e§lクリックで作る":
-                playerData.stock = playerData.stock.add(playerData.CPC);
+                playData.stock = playData.stock.add(playData.CPC);
                 GUI.createInventory(player);
                 return;
             case "§e§lLOAD":
@@ -98,27 +97,27 @@ public class Event implements Listener {public Event(Plugin plugin){Bukkit.getPl
         }
         if (originalItemID < 100) {
             //施設購入時の処理
-            if (playerData.stock.compareTo(playerData.buildingPrice[originalItemID]) < 0) return;
-            playerData.stock = playerData.stock.subtract(playerData.buildingPrice[originalItemID]);
-            playerData.buildingAmount[originalItemID]++;
-            playerData.buildingCPS[originalItemID] = buildingOriginalCPS[originalItemID].multiply(BigInteger.valueOf(playerData.buildingAmount[originalItemID])).multiply(BigInteger.TWO.pow(playerData.upGradeAmount[originalItemID]));
-            playerData.buildingPrice[originalItemID] = playerData.buildingPrice[originalItemID].multiply(BigInteger.valueOf(11)).divide(BigInteger.TEN);
+            if (playData.stock.compareTo(playData.buildingPrice[originalItemID]) < 0) return;
+            playData.stock = playData.stock.subtract(playData.buildingPrice[originalItemID]);
+            playData.buildingAmount[originalItemID]++;
+            playData.buildingCPS[originalItemID] = buildingOriginalCPS[originalItemID].multiply(BigInteger.valueOf(playData.buildingAmount[originalItemID])).multiply(BigInteger.TWO.pow(playData.upGradeAmount[originalItemID]));
+            playData.buildingPrice[originalItemID] = playData.buildingPrice[originalItemID].multiply(BigInteger.valueOf(11)).divide(BigInteger.TEN);
         } else {
             //アップグレード購入時の処理
             originalItemID = originalItemID - 100;
             if (originalItemID == 0) {
-                if(playerData.stock.compareTo(upGradeCursorPrice[playerData.upGradeAmount[0]]) < 0) return;
-                playerData.stock = playerData.stock.subtract(upGradeCursorPrice[playerData.upGradeAmount[0]]);
+                if(playData.stock.compareTo(upGradeCursorPrice[playData.upGradeAmount[0]]) < 0) return;
+                playData.stock = playData.stock.subtract(upGradeCursorPrice[playData.upGradeAmount[0]]);
             } else {
-                if (playerData.stock.compareTo(buildingOriginalPrice[originalItemID].multiply(upGradeOriginalPrice[playerData.upGradeAmount[originalItemID]])) < 0) return;
-                playerData.stock = playerData.stock.subtract(buildingOriginalPrice[originalItemID].multiply(upGradeOriginalPrice[playerData.upGradeAmount[originalItemID]]));
-                playerData.buildingCPS[originalItemID] = playerData.buildingCPS[originalItemID].multiply(BigInteger.TWO);
+                if (playData.stock.compareTo(buildingOriginalPrice[originalItemID].multiply(upGradeOriginalPrice[playData.upGradeAmount[originalItemID]])) < 0) return;
+                playData.stock = playData.stock.subtract(buildingOriginalPrice[originalItemID].multiply(upGradeOriginalPrice[playData.upGradeAmount[originalItemID]]));
+                playData.buildingCPS[originalItemID] = playData.buildingCPS[originalItemID].multiply(BigInteger.TWO);
             }
-            playerData.upGradeAmount[originalItemID]++;
+            playData.upGradeAmount[originalItemID]++;
         }
-        playerData.CPC = BigInteger.valueOf(powerCPC[playerData.upGradeAmount[0]]).add(BigInteger.valueOf(Arrays.stream(playerData.buildingAmount).sum() - playerData.buildingAmount[0]).multiply(BigInteger.valueOf(powerThousandFingers[playerData.upGradeAmount[0]])));
-        playerData.buildingCPS[0] = playerData.CPC.multiply(BigInteger.valueOf(playerData.buildingAmount[0])).divide(BigInteger.TEN);
-        playerData.CPS = Arrays.stream(playerData.buildingCPS).reduce(BigInteger.ZERO, BigInteger::add);
+        playData.CPC = BigInteger.valueOf(powerCPC[playData.upGradeAmount[0]]).add(BigInteger.valueOf(Arrays.stream(playData.buildingAmount).sum() - playData.buildingAmount[0]).multiply(BigInteger.valueOf(powerThousandFingers[playData.upGradeAmount[0]])));
+        playData.buildingCPS[0] = playData.CPC.multiply(BigInteger.valueOf(playData.buildingAmount[0])).divide(BigInteger.TEN);
+        playData.CPS = Arrays.stream(playData.buildingCPS).reduce(BigInteger.ZERO, BigInteger::add);
         GUI.createInventory(player);
     }
 }

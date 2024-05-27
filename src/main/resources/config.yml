@@ -1,3 +1,6 @@
-clickItem:
+saveDataItem:
   itemId: "COOKIE"
   customModelData: 0
+  displayName: "§e§lクッキークリッカーを始める"
+  lore:
+    - "§7セーブデータはありません"

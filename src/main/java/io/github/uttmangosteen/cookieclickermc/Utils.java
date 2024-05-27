@@ -6,6 +6,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.List;
 
 public class Utils {
@@ -39,6 +40,26 @@ public class Utils {
         item.setItemMeta(meta);
         return item;
     }
+
+    public static String playDataToPDCData(PlayData playData){
+        System.out.println(playData.stock.toString() + "|" + Arrays.toString(playData.buildingAmount) + "|" + Arrays.toString(playData.upGradeAmount));
+        return playData.stock.toString() + "|" + Arrays.toString(playData.buildingAmount) + "|" + Arrays.toString(playData.upGradeAmount);
+    }
+
+//    public static PlayData pDCDataToPlayData(String PDCdata){
+//        String[] playData = PDCdata.split("\\|");
+//
+//        BigInteger stock = new BigInteger(playData[0]);
+//        BigInteger CPS = ;
+//        BigInteger CPC = ;
+//        BigInteger[] buildingPrice = new BigInteger[16];
+//
+//        BigInteger[] buildingCPS =
+//        int[] buildingAmount =
+//        int[] upGradeAmount =
+//
+//        return new PlayData(stock, CPS, CPC, buildingPrice, buildingCPS, buildingAmount, upGradeAmount);
+//    }
 
 
 }
