@@ -25,7 +25,7 @@ public class Command implements CommandExecutor {
         Player player = (Player) sender;
         UUID uuid = player.getUniqueId();
         if (args.length == 0){
-            if (!(player.getInventory().getItemInMainHand().getItemMeta().getPersistentDataContainer().has(namespacedKey))) return true;
+            if (player.getInventory().getItemInMainHand().getItemMeta() == null || !(player.getInventory().getItemInMainHand().getItemMeta().getPersistentDataContainer().has(namespacedKey))) return true;
 
 
 

@@ -1,6 +1,7 @@
 package io.github.uttmangosteen.cookieclickermc;
 
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -8,10 +9,12 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 import static io.github.uttmangosteen.cookieclickermc.Global.*;
@@ -30,9 +33,7 @@ public class Event implements Listener {public Event(Plugin plugin){Bukkit.getPl
 
     }
 
-    private static final BigInteger[] buildingOriginalCPS = {BigInteger.valueOf(1), BigInteger.valueOf(10), BigInteger.valueOf(80), BigInteger.valueOf(470), BigInteger.valueOf(2600), BigInteger.valueOf(14000), BigInteger.valueOf(78000), BigInteger.valueOf(440000), BigInteger.valueOf(2600000), BigInteger.valueOf(16000000), BigInteger.valueOf(100000000), BigInteger.valueOf(650000000), BigInteger.valueOf(4300000000L), BigInteger.valueOf(29000000000L), BigInteger.valueOf(21000000000000L), BigInteger.valueOf(150000000000000L), BigInteger.valueOf(1100000000000000000L)};
-    private static final int[] powerCPC = {10, 20, 40, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80};
-    private static final long[] powerThousandFingers = {0, 0, 0, 0, 1, 5, 50, 1000, 20000, 400000, 8000000, 160000000, 3200000000L, 64000000000L, 1280000000000L};
+
     @EventHandler
     public void inventoryClickEvent(InventoryClickEvent event) {
         ItemStack clickedItem = event.getCurrentItem();
@@ -47,14 +48,27 @@ public class Event implements Listener {public Event(Plugin plugin){Bukkit.getPl
                 playData.stock = playData.stock.add(playData.CPC);
                 GUI.createInventory(player);
                 return;
+
             case "§e§lLOAD":
                 player.closeInventory();
                 player.sendMessage("§f§l[§d§lCo§f§lok§a§lie§e§lClicker§f§l]§b§lロード");
                 GUI.createInventory(player);
                 return;
             case "§e§lSAVE":
-                player.closeInventory();
-                player.sendMessage("§f§l[§d§lCo§f§lok§a§lie§e§lClicker§f§l]§a§lセーブ");
+                ItemStack saveDataItem = player.getInventory().getItemInMainHand();
+                if (saveDataItem.getItemMeta() != null && saveDataItem.getItemMeta().getPersistentDataContainer().has(namespacedKey, PersistentDataType.STRING)){
+
+                    player.closeInventory();
+                    player.sendMessage("§f§l[§d§lCo§f§lok§a§lie§e§lClicker§f§l]§a§lセーブ");
+                    saveDataItem.setAmount(saveDataItem.getAmount() - 1);
+                    saveDataItem.getItemMeta().getPersistentDataContainer().set(namespacedKey, PersistentDataType.STRING, Utils.playDataToPDCData(playData));
+
+                    saveDataItem.getItemMeta().setLore(List.of(Utils.playDataToPDCData(playData)));
+
+                    player.getInventory().addItem(saveDataItem);
+                } else {
+                    player.sendMessage("§f§l[§d§lCo§f§lok§a§lie§e§lClicker§f§l]§a§lセーブ用アイテムを手に持ってください");
+                }
                 return;
 
             case "§e§lカーソル": originalItemID = 0; break;
@@ -100,7 +114,7 @@ public class Event implements Listener {public Event(Plugin plugin){Bukkit.getPl
             if (playData.stock.compareTo(playData.buildingPrice[originalItemID]) < 0) return;
             playData.stock = playData.stock.subtract(playData.buildingPrice[originalItemID]);
             playData.buildingAmount[originalItemID]++;
-            playData.buildingCPS[originalItemID] = buildingOriginalCPS[originalItemID].multiply(BigInteger.valueOf(playData.buildingAmount[originalItemID])).multiply(BigInteger.TWO.pow(playData.upGradeAmount[originalItemID]));
+            playData.buildingCPS[originalItemID] = buildingBaseCPS[originalItemID].multiply(BigInteger.valueOf(playData.buildingAmount[originalItemID])).multiply(BigInteger.TWO.pow(playData.upGradeAmount[originalItemID]));
             playData.buildingPrice[originalItemID] = playData.buildingPrice[originalItemID].multiply(BigInteger.valueOf(11)).divide(BigInteger.TEN);
         } else {
             //アップグレード購入時の処理
@@ -109,8 +123,8 @@ public class Event implements Listener {public Event(Plugin plugin){Bukkit.getPl
                 if(playData.stock.compareTo(upGradeCursorPrice[playData.upGradeAmount[0]]) < 0) return;
                 playData.stock = playData.stock.subtract(upGradeCursorPrice[playData.upGradeAmount[0]]);
             } else {
-                if (playData.stock.compareTo(buildingOriginalPrice[originalItemID].multiply(upGradeOriginalPrice[playData.upGradeAmount[originalItemID]])) < 0) return;
-                playData.stock = playData.stock.subtract(buildingOriginalPrice[originalItemID].multiply(upGradeOriginalPrice[playData.upGradeAmount[originalItemID]]));
+                if (playData.stock.compareTo(buildingBasePrice[originalItemID].multiply(upGradeBasePrice[playData.upGradeAmount[originalItemID]])) < 0) return;
+                playData.stock = playData.stock.subtract(buildingBasePrice[originalItemID].multiply(upGradeBasePrice[playData.upGradeAmount[originalItemID]]));
                 playData.buildingCPS[originalItemID] = playData.buildingCPS[originalItemID].multiply(BigInteger.TWO);
             }
             playData.upGradeAmount[originalItemID]++;

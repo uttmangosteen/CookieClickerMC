@@ -287,7 +287,7 @@ public class GUI {
         if (playData.upGradeAmount[0] != 14 && playData.buildingAmount[0] >= unLockUpGradeCursorPrice[playData.upGradeAmount[0]]) upGrade.put(upGradeCursorPrice[playData.upGradeAmount[0]], itemUpGrade[0][playData.upGradeAmount[0]]);
         for (int i = 1; i <= 16; i++) {
             if (playData.upGradeAmount[i] == 14 || playData.buildingAmount[i] < unLockUpGradePrice[playData.upGradeAmount[i]]) continue;
-            upGrade.put(buildingOriginalPrice[i].multiply(upGradeOriginalPrice[playData.upGradeAmount[i]]), itemUpGrade[i][playData.upGradeAmount[i]]);
+            upGrade.put(buildingBasePrice[i].multiply(upGradeBasePrice[playData.upGradeAmount[i]]), itemUpGrade[i][playData.upGradeAmount[i]]);
         }
         ItemStack[] containUpGrade = upGrade.values().toArray(new ItemStack[17]);
 

@@ -9,6 +9,8 @@ import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
 
+import static io.github.uttmangosteen.cookieclickermc.Global.*;
+
 public class Utils {
 
     private static final String[] digitName = {"", "万", "億", "兆", "京", "垓", "秭", "穰", "溝", "澗", "正", "載", "極", "恒河沙", "阿僧祇", "那由他", "不可思議", "無量大数"};
@@ -55,14 +57,24 @@ public class Utils {
         BigInteger stock = new BigInteger(playData[0]);
         int[] buildingAmount = new int[16];
         int[] upGradeAmount = new int[16];
+        BigInteger[] buildingPrice = new BigInteger[16];
+        BigInteger[] buildingCPS = new BigInteger[16];
         for (int i = 0; i < 16; i++) {
             buildingAmount[i] = Integer.parseInt(stringBuildingAmount[i]);
             upGradeAmount[i] = Integer.parseInt(stringUpGradeAmount[i]);
         }
-        BigInteger CPS;
-        BigInteger CPC;
-        BigInteger[] buildingPrice = new BigInteger[16];
-        BigInteger[] buildingCPS = new BigInteger[16];
+        BigInteger CPS = Arrays.stream(buildingCPS).reduce(BigInteger.ZERO, BigInteger::add);
+        BigInteger CPC = BigInteger.valueOf(powerCPC[upGradeAmount[0]]).add(BigInteger.valueOf(Arrays.stream(buildingAmount).sum() - buildingAmount[0]).multiply(BigInteger.valueOf(powerThousandFingers[upGradeAmount[0]])));
+        for (int i = 0; i < 16; i++) {
+            for(int j = 0; j < buildingAmount[i]; j++){
+                buildingPrice[i] = buildingBasePrice[i].multiply(BigInteger.valueOf(11)).divide(BigInteger.TEN);
+                if(i == 0){
+                    buildingCPS[0] = CPC.multiply(BigInteger.valueOf(buildingAmount[0])).divide(BigInteger.TEN);
+                    continue;
+                }
+                buildingCPS[i] = buildingBaseCPS[i].multiply(BigInteger.valueOf(buildingAmount[i])).multiply(BigInteger.TWO.pow(upGradeAmount[i]));
+            }
+        }
         return new PlayData(stock, buildingAmount, upGradeAmount, CPS, CPC, buildingPrice, buildingCPS);
     }
 
