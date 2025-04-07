@@ -19,7 +19,10 @@ import java.util.UUID;
 
 import static io.github.uttmangosteen.cookieclickermc.Global.*;
 
-public class Event implements Listener {public Event(Plugin plugin){Bukkit.getPluginManager().registerEvents(this, plugin);}
+public class Event implements Listener {
+    public Event(Plugin plugin){
+        Bukkit.getPluginManager().registerEvents(this, plugin);
+    }
 
     PersistentDataContainer cCData;
     @EventHandler
